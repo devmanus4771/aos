@@ -1,0 +1,40 @@
+//Q.1) Read the current directory and display the name of the files, no of files in current directory
+#include<stdio.h> #include<dirent.h> int main()
+{
+DIR *d; int cnt=0;
+struct dirent *dir; // pointer for directory entry d=opendir(".");
+if(d==NULL) {
+printf("Could not open the current directory"); return(0);
+}
+while((dir=readdir(d))!=NULL)
+{
+printf("%s\n",dir->d_name); cnt++;
+}printf("\nTotal no. of files in the current directory=%d\n",cnt); closedir(d);
+return 0;
+}
+
+
+//Q.2) Write a C program to implement the following unix/linux command (use fork, pipe and exec
+system call). Your program should block the signal Ctrl-C and Ctrl-\ signal during the execution.
+i. Ls –l | wc –l
+#include<stdio.h>
+#include<stdlib.h> #include<unistd.h> #include<fcntl.h> #include<sys/wait.h> #include<errno.h>
+void main(){
+int filedes[2];
+if (pipe(filedes) == -1) {
+perror("pipe"); exit(1);
+}
+if(fork() == 0) {
+while ((dup2(filedes[1], STDOUT_FILENO) == -1)) {} char *args[] = {"ls","-l", NULL};
+int ret = execvp("ls",args); if(ret <0)
+{
+printf("Program can't be executed\n"); }
+exit(0); }
+close(filedes[1]); if(fork() == 0) {
+while((dup2(filedes[0], STDIN_FILENO) == -1)){} char *args[] = {"wc","-l", NULL};
+int ret = execvp("wc",args); if(ret <0)
+{
+printf("Program can't be executed\n"); }
+exit(0); }
+char output[100];read(filedes[0], output, 100); printf("%s", output); close(filedes[0]);
+exit(0); }

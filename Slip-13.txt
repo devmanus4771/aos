@@ -1,0 +1,46 @@
+//Q.1) Write a C program that illustrates suspending and resuming processes using signals
+#include <signal.h>
+55#include <stdio.h>
+#include <stdlib.h>
+#include <sys/wait.h>
+#include <unistd.h>
+volatile int child_suspended = 0; void suspend_handler(int signum) {
+if (signum == SIGUSR1) { kill(getpid(), SIGSTOP); child_suspended = 1; }
+}
+void resume_handler(int signum) { if (signum == SIGUSR2) { kill(getpid(), SIGCONT);
+child_suspended = 0; }
+}
+int main() {
+pid_t child_pid;
+signal(SIGUSR1, suspend_handler); signal(SIGUSR2, resume_handler);
+56child_pid = fork(); if (child_pid == -1) {
+perror("Fork failed"); exit(EXIT_FAILURE); }
+if (child_pid == 0) { while (1) {
+if (!child_suspended) { printf("Child: Running...\n"); sleep(1);
+} else {
+printf("Child: Suspended.\n"); pause();
+}
+}
+} else { sleep(2);
+kill(child_pid, SIGUSR1); sleep(3);
+kill(child_pid, SIGUSR2); wait(NULL);
+printf("Parent: Exiting.\n"); }
+57return 0; }
+
+
+//Q.2) Write a C program that a string as an argument and return all the files that begins with that name
+in the current directory. For example > ./a.out foo will return all file names that begins with foo
+#include<stdio.h> #include<dirent.h> #include<string.h>
+int main(int argc, char* argv[]) {DIR *d;
+char *position; struct dirent *dir; int i=0;
+if(argc!=2) {
+printf("Provide suffiecient args"); }
+else {
+d = opendir("."); if (d)
+{
+while ((dir = readdir(d)) != NULL) {
+position=strstr(dir->d_name,argv[1]); i=position-dir->d_name;
+if(i==0)
+printf("%s\n",dir->d_name); }
+closedir(d); return(0); }
+} }

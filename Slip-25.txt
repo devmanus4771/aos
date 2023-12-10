@@ -1,0 +1,20 @@
+//Q.1) Write a C Program that demonstrates redirection of standard output to a file
+#include<stdlib.h> #include<stdio.h> #include<string.h>
+main(int argc, char *argv[]) {
+char d[50]; if(argc==2) {
+bzero(d,sizeof(d));
+strcat(d,"ls ");
+strcat(d,"> ");
+strcat(d,argv[1]); system(d);
+}
+else
+printf("\nInvalid No. of inputs"); }
+
+//Q.2) Write a C program that redirects standard output to a file output.txt. (use of dup and open system
+call).
+#include<stdio.h> #include<stdlib.h> #include<fcntl.h> #include<unistd.h> void main()
+{ int fd;
+fd = open("output.txt",O_CREAT| O_WRONLY, 0777); close(STDOUT_FILENO);
+dup(fd);
+printf("this is some text to be printed on the screen\n"); printf("but it will be written to the file
+output.txt\n"); }

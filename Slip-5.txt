@@ -1,0 +1,46 @@
+//Q.1) Read the current directory and display the name of the files, no of files in current directory
+#include<stdio.h> #include<dirent.h> int main()
+{
+DIR *d; int cnt=0;
+struct dirent *dir; // pointer for directory entry d=opendir(".");
+if(d==NULL) {
+printf("Could not open the current directory"); return(0);
+}
+while((dir=readdir(d))!=NULL)
+{
+printf("%s\n",dir->d_name); cnt++;
+}printf("\nTotal no. of files in the current directory=%d\n",cnt); closedir(d);
+return 0;
+}
+
+//Q.2) Write a C program to create an unnamed pipe. The child process will write following three
+messages to pipe and parent process display it.
+Message1 = “Hello World”
+Message2 = “Hello SPPU”
+Message3 = “Linux is Funny”
+#include <stdio.h> #include <stdlib.h> #include <unistd.h> #include <string.h> #include <sys/wait.h>
+int main() {
+int pipe_fd[2];
+38pid_t child_pid;
+if (pipe(pipe_fd) == -1) { perror("Pipe creation failed"); exit(EXIT_FAILURE);
+}
+child_pid = fork();
+if (child_pid == -1) { perror("Fork failed"); exit(EXIT_FAILURE);
+}
+if (child_pid == 0) { // Child process
+close(pipe_fd[0]); // Close the read end of the pipe
+char *message1 = "Hello World";
+char *message2 = "Hello SPPU";
+char *message3 = "Linux is Funny";
+write(pipe_fd[1], message1, strlen(message1) + 1);
+write(pipe_fd[1], message2, strlen(message2) + 1);
+write(pipe_fd[1], message3, strlen(message3) + 1);
+close(pipe_fd[1]); // Close the write end of the pipe
+39exit(EXIT_SUCCESS); } else { // Parent process
+close(pipe_fd[1]); // Close the write end of the pipe char buffer[100];
+while (read(pipe_fd[0], buffer, sizeof(buffer)) > 0) {
+printf("Received message: %s\n", buffer); }
+close(pipe_fd[0]); // Close the read end of the pipe wait(NULL); // Wait for the child process to
+complete
+} return 0;
+}

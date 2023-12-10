@@ -1,0 +1,62 @@
+//Q.1) Display all the files from current directory which are created in particular month
+#include<stdio.h>#include<dirent.h> #include<string.h> #include<sys/stat.h> #include<time.h>
+#include<stdlib.h>
+int main(int argc, char *argv[]) {
+char in[100],st[100],*ch,*ch1,c,buff[512]; DIR *dp;
+int i;
+struct dirent *ep; struct stat sb; char mon[100]; dp=opendir("./"); if (dp != NULL) {
+while(ep =readdir(dp)) {
+if(stat(ep->d_name,&sb) == -1) {
+perror("stat");exit(EXIT_SUCCESS); }
+strcpy(mon,ctime(&sb.st_ctime)); ch=strtok(mon," ");
+ch=strtok(NULL,","); ch1=strtok(ch," ");
+if((strcmp(ch1,argv[1]))==0) {
+printf("%s\t\t%s",ep->d_name,ctime(&sb.st_ctime)); }}
+(void)closedir(dp); }
+return 0; }
+
+
+//Q.2) Write a C program which create a child process which catch a signal sighup, sigint and sigquit.
+The Parent process send a sighup or sigint signal after every 3 seconds, at the end of 30 second
+parent send sigquit signal to child and child terminates my displaying message “My DADDY has
+Killed me!!!”.
+#include <stdio.h>
+#include <signal.h> #include <stdlib.h> #include <unistd.h> #include <sys/types.h>
+// function declaration of sighup, sigint and sigquit functions
+void sighup();
+void sigint();
+void sigquit();
+// main function or driver code void main()
+{
+int pid;
+// pid variable, which will be used later to identify the process, whether it is child process or parent
+process
+// to get the child process if ((pid = fork()) < 0)
+{perror("fork"); exit(1);
+}
+if (pid == 0)
+{ /* child process, since pid equals to zero for child process */
+signal(SIGHUP, sighup);
+signal(SIGINT, sigint);
+signal(SIGQUIT, sigquit);
+for (;;); /* infinite loop i.e. loop for ever */ }
+else /* parent process*/
+{ // pid hold the process id of child process printf("\nPARENT: sending SIGHUP\n\n"); kill(pid,
+SIGHUP);
+sleep(3); // pause for 3 seconds printf("\nPARENT: sending SIGINT\n\n");
+kill(pid, SIGINT);
+sleep(3); // pause for 3 seconds
+printf("\nPARENT: sending SIGQUIT\n\n"); kill(pid, SIGQUIT);
+sleep(3); // pause for 3 seconds }
+}
+// function definition of sighup() void sighup()
+{signal(SIGHUP, sighup); /* reset signal */ printf("CHILD: I have received a SIGHUP\n");
+}
+// function definition of sigint() void sigint()
+{
+signal(SIGINT, sigint); /* reset signal */ printf("CHILD: I have received a SIGINT\n");
+}
+// function definition of sigquit() void sigquit()
+{
+printf("My Papa has Killed me!!!\n"); exit(0);
+}
